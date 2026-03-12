@@ -1,84 +1,81 @@
 -- Users
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE users (
   id SERIAL PRIMARY KEY,
   name TEXT NOT NULL
 );
 
 -- Boards
-CREATE TABLE IF NOT EXISTS boards (
+CREATE TABLE boards (
   id SERIAL PRIMARY KEY,
   title TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Lists
-CREATE TABLE IF NOT EXISTS lists (
+CREATE TABLE lists (
   id SERIAL PRIMARY KEY,
   board_id INTEGER REFERENCES boards(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
-  position INTEGER
+  position INTEGER NOT NULL
 );
 
 -- Cards
-CREATE TABLE IF NOT EXISTS cards (
+CREATE TABLE cards (
   id SERIAL PRIMARY KEY,
   list_id INTEGER REFERENCES lists(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   description TEXT,
-  position INTEGER,
-  due_date DATE,
+  position INTEGER NOT NULL,
+  due_date TIMESTAMP,
+  is_archived BOOLEAN DEFAULT false,
+  is_completed BOOLEAN DEFAULT false,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Labels
-CREATE TABLE IF NOT EXISTS labels (
+CREATE TABLE labels (
   id SERIAL PRIMARY KEY,
+  board_id INTEGER REFERENCES boards(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   color TEXT NOT NULL
 );
 
--- Card Labels (Many-to-Many)
-CREATE TABLE IF NOT EXISTS card_labels (
+-- Card Labels
+CREATE TABLE card_labels (
   card_id INTEGER REFERENCES cards(id) ON DELETE CASCADE,
   label_id INTEGER REFERENCES labels(id) ON DELETE CASCADE,
   PRIMARY KEY (card_id, label_id)
 );
 
--- Card Members (Many-to-Many)
-CREATE TABLE IF NOT EXISTS card_members (
+-- Card Members
+CREATE TABLE card_members (
   card_id INTEGER REFERENCES cards(id) ON DELETE CASCADE,
   user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
   PRIMARY KEY (card_id, user_id)
 );
 
 -- Checklists
-CREATE TABLE IF NOT EXISTS checklists (
+CREATE TABLE checklists (
   id SERIAL PRIMARY KEY,
+  card_id INTEGER REFERENCES cards(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
-  card_id INTEGER REFERENCES cards(id) ON DELETE CASCADE
+  position INTEGER NOT NULL
 );
 
 -- Checklist Items
-CREATE TABLE IF NOT EXISTS checklist_items (
+CREATE TABLE checklist_items (
   id SERIAL PRIMARY KEY,
+  checklist_id INTEGER REFERENCES checklists(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   is_completed BOOLEAN DEFAULT false,
-  checklist_id INTEGER REFERENCES checklists(id) ON DELETE CASCADE,
-  position INTEGER
+  position INTEGER NOT NULL
 );
 
 -- Comments
-CREATE TABLE IF NOT EXISTS comments (
+CREATE TABLE comments (
   id SERIAL PRIMARY KEY,
-  text TEXT NOT NULL,
-  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
   card_id INTEGER REFERENCES cards(id) ON DELETE CASCADE,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  text TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
--- Indexes
-CREATE INDEX IF NOT EXISTS idx_lists_board_position
-ON lists(board_id, position);
-
-CREATE INDEX IF NOT EXISTS idx_cards_list_position
-ON cards(list_id, position);
