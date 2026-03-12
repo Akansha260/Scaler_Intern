@@ -30,6 +30,7 @@ export interface Card {
   description?: string;
   due_date?: string;
   is_archived?: boolean;
+  is_completed?: boolean;
   labels: Label[];
   members: User[];
   checklists: Checklist[];

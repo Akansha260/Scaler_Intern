@@ -1,9 +1,10 @@
 "use client";
 
+import { useState, useRef, useEffect, memo, useCallback } from "react";
 import { List as ListType } from "@/types";
 import CardComponent from "./Card";
 import { Plus, X, Trash2 } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { apiUrl } from "@/lib/utils";
 import { Draggable, Droppable } from "@hello-pangea/dnd";
 import ConfirmPopover from "./ConfirmPopover";
 
@@ -18,9 +19,22 @@ interface ListProps {
   isDragDisabled?: boolean;
   selectedCards?: number[];
   toggleCardSelection?: (id: number) => void;
+  updateCard?: (card: any) => void;
 }
 
-export default function List({ list, index, updateListTitle, deleteList, addCard, deleteCard, openCard, isDragDisabled, selectedCards, toggleCardSelection }: ListProps) {
+const List = memo(function List({ 
+  list, 
+  index, 
+  updateListTitle, 
+  deleteList, 
+  addCard, 
+  deleteCard, 
+  openCard, 
+  isDragDisabled, 
+  selectedCards, 
+  toggleCardSelection, 
+  updateCard 
+}: ListProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState(list.title);
   const [isAddingCard, setIsAddingCard] = useState(false);
@@ -35,22 +49,39 @@ export default function List({ list, index, updateListTitle, deleteList, addCard
     }
   }, [isEditingTitle]);
 
-  const handleUpdateTitle = () => {
+  const handleUpdateTitle = useCallback(() => {
     if (title.trim() && title !== list.title) {
       updateListTitle(list.id, title);
     } else {
       setTitle(list.title);
     }
     setIsEditingTitle(false);
-  };
+  }, [title, list.id, list.title, updateListTitle]);
 
-  const handleAddCard = async () => {
+  const handleAddCard = useCallback(async () => {
     if (newCardTitle.trim()) {
       await addCard(list.id, newCardTitle);
       setNewCardTitle("");
       setIsAddingCard(false);
     }
-  };
+  }, [newCardTitle, list.id, addCard]);
+
+  const handleToggleComplete = useCallback(async (cardId: number, currentStatus: boolean) => {
+    if (!updateCard) return;
+    try {
+      const res = await fetch(apiUrl(`cards/${cardId}`), {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_completed: !currentStatus })
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        updateCard(updated);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, [updateCard]);
 
   return (
     <Draggable draggableId={`list-${list.id}`} index={index} isDragDisabled={isDragDisabled}>
@@ -108,9 +139,9 @@ export default function List({ list, index, updateListTitle, deleteList, addCard
 
           
           <Droppable droppableId={list.id.toString()} type="card">
-            {(provided) => (
+            {(provided, snapshot) => (
               <div 
-                className="flex-1 overflow-y-auto flex flex-col gap-2 min-h-[10px] custom-scrollbar px-1"
+                className={`flex-1 overflow-y-auto custom-scrollbar px-1 flex flex-col gap-2 min-h-[100px] transition-colors duration-200 ${snapshot.isDraggingOver ? 'bg-black/5 rounded-md' : ''}`}
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
@@ -122,7 +153,8 @@ export default function List({ list, index, updateListTitle, deleteList, addCard
                     onClick={() => openCard(card.id)} 
                     isDragDisabled={isDragDisabled}
                     isSelected={selectedCards?.includes(card.id)}
-                    onToggleSelect={toggleCardSelection ? () => toggleCardSelection(card.id) : undefined}
+                    onToggleSelect={toggleCardSelection}
+                    onToggleComplete={handleToggleComplete}
                   />
                 ))}
                 {provided.placeholder}
@@ -173,4 +205,6 @@ export default function List({ list, index, updateListTitle, deleteList, addCard
       )}
     </Draggable>
   );
-}
+});
+
+export default List;
