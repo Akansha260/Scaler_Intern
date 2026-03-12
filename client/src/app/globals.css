@@ -1,5 +1,28 @@
 @import "tailwindcss";
 
+.dragging {
+  transition: none !important;
+  z-index: 9999 !important;
+}
+
+/* Ensure no transitions interfere with position updates during drag */
+[data-rbd-draggable-context-id] {
+  transition: none !important;
+}
+
+/* Aggressively clean up ghost artifacts */
+[data-rbd-draggable-id] {
+  transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s !important;
+}
+
+/* Clean up ghost artifacts when not dragging */
+[data-rbd-draggable-id]:not(.dragging) {
+  ring-width: 0 !important;
+  box-shadow: none !important;
+  border-width: 1px !important;
+  outline: none !important;
+}
+
 @layer base {
   :root {
     --background: #0079bf;
