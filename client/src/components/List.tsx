@@ -5,6 +5,7 @@ import CardComponent from "./Card";
 import { Plus, X, Trash2 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { Draggable, Droppable } from "@hello-pangea/dnd";
+import ConfirmPopover from "./ConfirmPopover";
 
 interface ListProps {
   list: ListType;
@@ -15,14 +16,17 @@ interface ListProps {
   deleteCard: (cardId: number, listId: number) => void;
   openCard: (id: number) => void;
   isDragDisabled?: boolean;
+  selectedCards?: number[];
+  toggleCardSelection?: (id: number) => void;
 }
 
-export default function List({ list, index, updateListTitle, deleteList, addCard, deleteCard, openCard, isDragDisabled }: ListProps) {
+export default function List({ list, index, updateListTitle, deleteList, addCard, deleteCard, openCard, isDragDisabled, selectedCards, toggleCardSelection }: ListProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState(list.title);
   const [isAddingCard, setIsAddingCard] = useState(false);
   const [newCardTitle, setNewCardTitle] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     if (isEditingTitle && inputRef.current) {
@@ -52,12 +56,12 @@ export default function List({ list, index, updateListTitle, deleteList, addCard
     <Draggable draggableId={`list-${list.id}`} index={index} isDragDisabled={isDragDisabled}>
       {(provided) => (
         <div 
-          className="w-[272px] shrink-0 bg-[#ebecf0] rounded-xl flex flex-col max-h-full"
+          className="w-[272px] shrink-0 bg-[#ebecf0] rounded-lg p-2 flex flex-col max-h-full"
           ref={provided.innerRef}
           {...provided.draggableProps}
         >
           <div 
-            className="p-3 pb-2 font-semibold text-[#172b4d] flex justify-between items-center group"
+            className="pb-2 font-semibold text-[#172b4d] flex justify-between items-center group px-1"
             {...provided.dragHandleProps}
           >
             {isEditingTitle ? (
@@ -85,31 +89,48 @@ export default function List({ list, index, updateListTitle, deleteList, addCard
             )}
             <button 
               className="p-1 rounded-md hover:bg-black/10 text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity ml-1 shrink-0"
-              onClick={() => {
-                if (confirm("Are you sure you want to delete this list?")) deleteList(list.id);
-              }}
+              onClick={() => setShowDeleteConfirm(true)}
               title="Delete list"
             >
               <Trash2 size={16} />
             </button>
           </div>
+
+          {showDeleteConfirm && (
+            <ConfirmPopover 
+              title="Delete list?"
+              message="Are you sure you want to delete this list? All cards in this list will also be deleted. This action cannot be undone."
+              confirmLabel="Delete forever"
+              onConfirm={() => deleteList(list.id)}
+              onClose={() => setShowDeleteConfirm(false)}
+            />
+          )}
+
           
           <Droppable droppableId={list.id.toString()} type="card">
             {(provided) => (
               <div 
-                className="flex-1 overflow-y-auto px-2 pb-2 flex flex-col gap-2 min-h-[10px] custom-scrollbar"
+                className="flex-1 overflow-y-auto flex flex-col gap-2 min-h-[10px] custom-scrollbar px-1"
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
                 {list.cards.map((card, idx) => (
-                  <CardComponent key={card.id} card={card} index={idx} onClick={() => openCard(card.id)} isDragDisabled={isDragDisabled} />
+                  <CardComponent 
+                    key={card.id} 
+                    card={card} 
+                    index={idx} 
+                    onClick={() => openCard(card.id)} 
+                    isDragDisabled={isDragDisabled}
+                    isSelected={selectedCards?.includes(card.id)}
+                    onToggleSelect={toggleCardSelection ? () => toggleCardSelection(card.id) : undefined}
+                  />
                 ))}
                 {provided.placeholder}
               </div>
             )}
           </Droppable>
 
-          <div className="p-2 pt-0">
+          <div className="pt-2">
             {isAddingCard ? (
               <div className="flex flex-col gap-1.5 pt-2">
                 <textarea
@@ -141,7 +162,7 @@ export default function List({ list, index, updateListTitle, deleteList, addCard
               </div>
             ) : (
               <button 
-                className="text-[#5e6c84] hover:bg-black/10 hover:text-[#172b4d] w-full text-left p-1.5 rounded-md transition-colors text-sm font-medium flex items-center gap-1"
+                className="text-[#5e6c84] hover:bg-black/10 rounded-md px-2 py-1 w-full text-left transition-colors text-sm font-medium flex items-center gap-1"
                 onClick={() => setIsAddingCard(true)}
               >
                 <Plus size={16} /> Add a card
