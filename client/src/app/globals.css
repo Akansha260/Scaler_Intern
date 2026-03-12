@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #0079bf; /* Trello classic blue */
+    --foreground: #172b4d;
+    
+    --card: #ffffff;
+    --card-foreground: #172b4d;
+    
+    --popover: #ffffff;
+    --popover-foreground: #172b4d;
+    
+    --primary: #0079bf;
+    --primary-foreground: #ffffff;
+    
+    --secondary: #ebecf0; /* Trello list background */
+    --secondary-foreground: #172b4d;
+    
+    --muted: #f4f5f7;
+    --muted-foreground: #5e6c84;
+    
+    --accent: #ebecf0;
+    --accent-foreground: #172b4d;
+    
+    --destructive: #eb5a46;
+    --destructive-foreground: #ffffff;
+
+    --border: #dfe1e6;
+    --input: #dfe1e6;
+    --ring: #0079bf;
+
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+}
