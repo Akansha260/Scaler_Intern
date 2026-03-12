@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import { Board, List, Card } from '@/types';
+import { Board } from '@/types';
+import { apiUrl } from '@/lib/utils';
 
 export function useBoard(initialBoard: Board) {
   const [board, setBoard] = useState(initialBoard);
 
   const addList = async (title: string) => {
-    const res = await fetch('http://localhost:5000/api/lists', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ board_id: board.id, title })
+    const res = await fetch(apiUrl('lists'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ board_id: board.id, title }),
     });
     if (res.ok) {
       const newList = await res.json();
@@ -16,9 +18,10 @@ export function useBoard(initialBoard: Board) {
   };
 
   const updateListTitle = async (listId: number, title: string) => {
-    const res = await fetch(`http://localhost:5000/api/lists/${listId}`, {
-      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title })
+    const res = await fetch(apiUrl(`lists/${listId}`), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title }),
     });
     if (res.ok) {
       setBoard(prev => ({ ...prev, lists: prev.lists.map(l => l.id === listId ? { ...l, title } : l) }));
@@ -26,27 +29,28 @@ export function useBoard(initialBoard: Board) {
   };
 
   const deleteList = async (listId: number) => {
-    const res = await fetch(`http://localhost:5000/api/lists/${listId}`, { method: 'DELETE' });
+    const res = await fetch(apiUrl(`lists/${listId}`), { method: 'DELETE' });
     if (res.ok) {
       setBoard(prev => ({ ...prev, lists: prev.lists.filter(l => l.id !== listId) }));
     }
   };
 
   const addCard = async (listId: number, title: string) => {
-    const res = await fetch('http://localhost:5000/api/cards', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ list_id: listId, title })
+    const res = await fetch(apiUrl('cards'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ list_id: listId, title }),
     });
     if(res.ok) {
       const newCard = await res.json();
       setBoard(prev => ({
-        ...prev, lists: prev.lists.map(l => l.id === listId ? { ...l, cards: [...l.cards, { ...newCard, labels: [], members: [] }] } : l)
+        ...prev, lists: prev.lists.map(l => l.id === listId ? { ...l, cards: [...l.cards, { ...newCard, labels: [], members: [], checklists:[] }] } : l)
       }));
     }
   };
 
   const deleteCard = async (cardId: number, listId: number) => {
-    const res = await fetch(`http://localhost:5000/api/cards/${cardId}`, { method: 'DELETE' });
+    const res = await fetch(apiUrl(`cards/${cardId}`), { method: 'DELETE' });
     if(res.ok) {
       setBoard(prev => ({
         ...prev, lists: prev.lists.map(l => l.id === listId ? { ...l, cards: l.cards.filter(c => c.id !== cardId) } : l)
@@ -63,9 +67,10 @@ export function useBoard(initialBoard: Board) {
     setBoard(prev => ({ ...prev, lists: newLists }));
 
     const items = newLists.map(l => ({ id: l.id, position: l.position }));
-    await fetch('http://localhost:5000/api/lists/reorder', {
-      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items })
+    await fetch(apiUrl('lists/reorder'), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items }),
     });
   };
 
@@ -99,11 +104,56 @@ export function useBoard(initialBoard: Board) {
       items = [...items, ...sourceCards.map(c => ({ id: c.id, position: c.position, list_id: sourceListId }))];
     }
 
-    await fetch('http://localhost:5000/api/cards/move', {
-      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items })
+    await fetch(apiUrl('cards/move'), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ items }),
     });
   };
 
-  return { board, setBoard, addList, updateListTitle, deleteList, addCard, deleteCard, reorderLists, moveCard };
+  const updateCardInBoard = (updatedCard: any) => {
+    setBoard(prev => {
+      const isCardAlreadyInBoard = prev.lists.some(l => l.cards.some(c => c.id === updatedCard.id));
+      
+      if (updatedCard.is_archived) {
+        // Remove card if it's archived
+        return {
+          ...prev,
+          lists: prev.lists.map(list => ({
+            ...list,
+            cards: list.cards.filter(card => card.id !== updatedCard.id)
+          })),
+        };
+      } else {
+        // Add card back or update if it's NOT archived
+        return {
+          ...prev,
+          lists: prev.lists.map(list => ({
+            ...list,
+            cards: list.id === updatedCard.list_id
+              ? (list.cards.some(c => c.id === updatedCard.id) 
+                  ? list.cards.map(c => c.id === updatedCard.id ? { ...c, ...updatedCard } : c)
+                  : [...list.cards, { ...updatedCard, labels: updatedCard.labels || [], members: updatedCard.members || [], checklists: updatedCard.checklists || [] }].sort((a,b) => a.position - b.position)
+                )
+              : list.cards.filter(c => c.id !== updatedCard.id)
+          })),
+        };
+      }
+    });
+  };
+
+
+
+  return {
+    board,
+    setBoard,
+    addList,
+    updateListTitle,
+    deleteList,
+    addCard,
+    deleteCard,
+    reorderLists,
+    moveCard,
+    updateCardInBoard,
+  };
 }
