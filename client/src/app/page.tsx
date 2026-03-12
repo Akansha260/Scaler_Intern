@@ -1,32 +1,29 @@
-import BoardComponent from "@/components/Board";
+import { redirect } from "next/navigation";
+import { apiUrl } from "@/lib/utils";
 import { Board } from "@/types";
 
-async function getBoardData(): Promise<Board | null> {
+async function getAllBoards(): Promise<Board[]> {
   try {
-    const res = await fetch("http://localhost:5000/api/boards/1", { cache: "no-store" });
-    if (!res.ok) throw new Error("Failed to fetch board");
+    const res = await fetch(apiUrl("boards"), { cache: "no-store" });
+    if (!res.ok) return [];
     return res.json();
-  } catch(e) {
-    console.error(e);
-    return null;
+  } catch (e) {
+    console.log("Error fetching boards on home");
+    return [];
   }
 }
 
-export default async function Page() {
-  const board = await getBoardData();
+export default async function Home() {
+  const boards = await getAllBoards();
 
-  if (!board) {
-    return <div className="p-8 text-white">Error loading board data. Ensure Express backend is running.</div>;
+  if (boards.length > 0) {
+    redirect(`/boards/${boards[0].id}`);
   }
 
   return (
-    <main className="h-screen w-full flex flex-col bg-[#0079bf] overflow-hidden">
-      <header className="h-12 bg-black/20 flex items-center px-4 shrink-0">
-        <h1 className="text-white font-bold text-lg">{board.title}</h1>
-      </header>
-      <div className="flex-1 overflow-x-auto p-4 items-start">
-        <BoardComponent initialBoard={board} />
-      </div>
-    </main>
+    <div className="p-8 text-white flex flex-col gap-4 bg-[#0079bf] min-h-screen">
+      <h2 className="text-xl">No boards found</h2>
+      <p>Please create a board in the backend to get started.</p>
+    </div>
   );
 }
