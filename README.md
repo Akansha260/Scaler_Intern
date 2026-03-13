@@ -9,16 +9,25 @@ TaskWeave helps teams organize tasks using boards, lists, and cards with feature
 # Screenshots
 
 ## Dashboard / Board View
-![Dashboard](Application_Screenshots/Dashboard.png)
+<p align="center">
+  <img src="Application_Screenshots/Dashboard.png" width="800"/>
+</p>
 
 ## Card Details
-![Card Details](Application_Screenshots/Card.png)
+<p align="center">
+  <img src="Application_Screenshots/Card.png" width="500"/>
+</p>
 
 ## Filtering Tasks
-![Filter](Application_Screenshots/Filter_tab.png)
+<p align="center">
+  <img src="Application_Screenshots/Filter_tab.png" width="200"/>
+</p>
 
 ## Archived Cards
-![Archive](Application_Screenshots/Archive_section.png)
+<p align="center">
+  <img src="Application_Screenshots/Archive_section.png" width="200"/>
+</p>
+
 
 ---
 
