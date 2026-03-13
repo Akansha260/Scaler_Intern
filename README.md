@@ -176,6 +176,12 @@ DELETE /api/cards/:id
 Full implementations are inside: `server/routes`
 
 ---
+## ⚠️ Deployment Note
+
+The backend is hosted on the **Render free tier**.  
+If the service has been inactive, the **first request may take 30–60 seconds** due to a cold start.
+
+---
 
 # Local Setup
 
