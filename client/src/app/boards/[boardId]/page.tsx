@@ -54,7 +54,7 @@ export default async function Page({ params }: { params: Promise<{ boardId: stri
   return (
     <main className="h-screen w-full flex flex-col bg-[#0079bf] overflow-hidden">
       <header className="h-12 bg-black flex items-center px-4 shrink-0 gap-4">
-        <div className="font-bold text-xl text-white mr-4 italic logo">Trello</div>
+        <div className="font-bold text-xl text-white mr-4 italic logo">TaskWeave</div>
         <BoardSwitcher boards={allBoards} activeBoardId={board.id} />
       </header>
       <div className="flex-1 overflow-hidden flex flex-col">
