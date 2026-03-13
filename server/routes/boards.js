@@ -88,6 +88,7 @@ router.get('/:id', async (req, res) => {
                     'title', c.title,
                     'position', c.position,
                     'description', c.description,
+                    'start_date', c.start_date,
                     'due_date', c.due_date,
                     'checklist_completed', (
                       SELECT COUNT(*)::INT

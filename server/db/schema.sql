@@ -26,7 +26,8 @@ CREATE TABLE cards (
   title TEXT NOT NULL,
   description TEXT,
   position INTEGER NOT NULL,
-  due_date TIMESTAMP,
+  start_date TIMESTAMPTZ,
+  due_date TIMESTAMPTZ,
   is_archived BOOLEAN DEFAULT false,
   is_completed BOOLEAN DEFAULT false,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

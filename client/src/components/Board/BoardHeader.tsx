@@ -29,9 +29,9 @@ export default function BoardHeader({
   setShowDeleteBoardConfirm
 }: BoardHeaderProps) {
   return (
-    <div className="px-4 shrink-0 flex items-center justify-start w-full relative">
+    <div className="px-4 shrink-0 flex items-center justify-end w-full relative">
       <button 
-        className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${isFiltering ? 'bg-[#85b8ff] text-[#172b4d]' : 'bg-white/20 hover:bg-white/30 text-white'}`}
+        className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${isFiltering ? 'bg-[#579dff] text-[#1d2125]' : 'bg-white/5 hover:bg-white/10 text-white'}`}
         onClick={() => setIsFilterOpen(!isFilterOpen)}
       >
         <Filter size={16} /> Filter 
@@ -51,7 +51,7 @@ export default function BoardHeader({
       )}
 
       <button 
-        className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors bg-white/20 hover:bg-white/30 text-white ml-2"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors bg-white/5 hover:bg-white/10 text-white ml-2"
         onClick={() => setIsArchiveOpen(true)}
       >
         <Archive size={16} /> Archived Items

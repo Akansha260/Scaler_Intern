@@ -35,18 +35,18 @@ export default function CreateBoardModal({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-[60] flex justify-center items-center p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200">
-        <div className="flex justify-between items-center px-4 py-3 border-b">
-          <h3 className="font-semibold text-[#172b4d]">Create board</h3>
-          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded text-gray-500">
+    <div className="fixed inset-0 bg-black/60 z-[60] flex justify-center items-center p-4" onClick={onClose}>
+      <div className="bg-[#282e33] rounded-lg shadow-xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200 border border-[#3b444c]" onClick={e => e.stopPropagation()}>
+        <div className="flex justify-between items-center px-4 py-3 border-b border-[#3b444c]">
+          <h3 className="font-semibold text-white">Create board</h3>
+          <button onClick={onClose} className="p-1 hover:bg-[#3b444c] rounded text-white/70 hover:text-white transition-colors">
             <X size={18} />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-4 flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="board-title" className="text-xs font-bold text-gray-700">
-              Board title <span className="text-red-500">*</span>
+            <label htmlFor="board-title" className="text-xs font-bold text-white/70">
+              Board title <span className="text-red-400">*</span>
             </label>
             <input
               id="board-title"
@@ -55,17 +55,17 @@ export default function CreateBoardModal({ onClose }: { onClose: () => void }) {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter board title"
-              className="w-full border-2 border-gray-200 rounded px-3 py-2 text-sm focus:border-blue-500 outline-none transition-colors text-black"
+              className="w-full bg-[#22272b] border-2 border-[#3b444c] rounded px-3 py-2 text-sm focus:border-[#579dff] outline-none transition-colors text-white placeholder:text-white/30"
               required
             />
-            <p className="text-[11px] text-gray-500">
-              👋 Board title is required
+            <p className="text-[11px] text-white/50">
+              Board title is required
             </p>
           </div>
           <button
             type="submit"
             disabled={!title.trim() || isSubmitting}
-            className="w-full bg-[#0079bf] hover:bg-[#026aa7] disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-2 rounded font-medium text-sm transition-colors"
+            className="w-full bg-[#579dff] hover:bg-[#85b8ff] disabled:bg-[#3b444c] disabled:text-white/30 disabled:cursor-not-allowed text-[#1d2125] py-2 rounded font-bold text-sm transition-colors"
           >
             {isSubmitting ? "Creating..." : "Create"}
           </button>

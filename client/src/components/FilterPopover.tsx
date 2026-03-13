@@ -12,6 +12,9 @@ export interface FilterState {
   labels: number[];
   noDueDate: boolean;
   overdue: boolean;
+  dueSoon: boolean;
+  complete: boolean;
+  incomplete: boolean;
 }
 
 interface FilterPopoverProps {
@@ -80,15 +83,15 @@ export default function FilterPopover({
   return (
     <div
       ref={popoverRef}
-      className="absolute top-10 left-0 w-[340px] bg-[#282e33] rounded-lg shadow-xl border border-[#3b444c] z-50 text-[#b6c2cf] flex flex-col max-h-[80vh]"
+      className="absolute top-10 right-0 w-[340px] bg-[#282e33] rounded-lg shadow-xl border border-[#3b444c] z-50 text-[#b6c2cf] flex flex-col max-h-[80vh]"
     >
 
       {/* Header */}
       <div className="flex justify-between items-center p-3 shrink-0">
-        <h3 className="font-semibold text-sm w-full text-center">Filter</h3>
+        <h3 className="font-semibold text-sm w-full text-center text-white">Filter</h3>
         <button
           onClick={onClose}
-          className="p-1 hover:bg-[#3b444c] rounded-md absolute right-2 text-[#9fadbc]"
+          className="p-1 hover:bg-[#3b444c] rounded-md absolute right-2 text-white"
         >
           <X size={16} />
         </button>
@@ -110,7 +113,7 @@ export default function FilterPopover({
             }
           />
 
-          <p className="text-[11px] text-[#8c9bab] mt-1">
+          <p className="text-[11px] text-white/50 mt-1">
             Search cards, members, labels and more
           </p>
         </div>
@@ -217,48 +220,67 @@ export default function FilterPopover({
           </div>
         </div>
 
-        {/* Due Date */}
+        {/* Status */}
         <div>
-
-          <h4 className="text-xs font-semibold tracking-wide mb-2">Due Date</h4>
-
+          <h4 className="text-xs font-semibold tracking-wide mb-2 uppercase text-white/50">Status</h4>
           <div className="flex flex-col gap-2">
-
-            <label className="flex items-center gap-3 cursor-pointer hover:bg-[#3b444c] p-1 rounded">
+            <label className="flex items-center gap-3 cursor-pointer hover:bg-[#3b444c] p-1.5 rounded transition-colors group">
               <input
                 type="checkbox"
-                className="w-4 h-4 accent-[#579dff]"
-                checked={filter.noDueDate}
-                onChange={() =>
-                  setFilter(prev => ({
-                    ...prev,
-                    noDueDate: !prev.noDueDate,
-                  }))
-                }
+                className="w-4 h-4 accent-[#579dff] cursor-pointer"
+                checked={filter.complete}
+                onChange={() => setFilter(prev => ({ ...prev, complete: !prev.complete }))}
               />
-              <Calendar size={14} />
-              <span className="text-sm">No dates</span>
+              <span className="text-sm">Complete</span>
             </label>
-
-            <label className="flex items-center gap-3 cursor-pointer hover:bg-[#3b444c] p-1 rounded">
+            <label className="flex items-center gap-3 cursor-pointer hover:bg-[#3b444c] p-1.5 rounded transition-colors group">
               <input
                 type="checkbox"
-                className="w-4 h-4 accent-[#579dff]"
-                checked={filter.overdue}
-                onChange={() =>
-                  setFilter(prev => ({
-                    ...prev,
-                    overdue: !prev.overdue,
-                  }))
-                }
+                className="w-4 h-4 accent-[#579dff] cursor-pointer"
+                checked={filter.incomplete}
+                onChange={() => setFilter(prev => ({ ...prev, incomplete: !prev.incomplete }))}
               />
-              <Clock size={14} />
-              <span className="text-sm">Overdue</span>
+              <span className="text-sm">Incomplete</span>
             </label>
-
           </div>
         </div>
 
+        {/* Due Date */}
+        <div>
+          <h4 className="text-xs font-semibold tracking-wide mb-2 uppercase text-white/50">Due Date</h4>
+          <div className="flex flex-col gap-2">
+            <label className="flex items-center gap-3 cursor-pointer hover:bg-[#3b444c] p-1.5 rounded transition-colors group">
+              <input
+                type="checkbox"
+                className="w-4 h-4 accent-[#579dff] cursor-pointer"
+                checked={filter.noDueDate}
+                onChange={() => setFilter(prev => ({ ...prev, noDueDate: !prev.noDueDate }))}
+              />
+              <Calendar size={14} className="text-white/50" />
+              <span className="text-sm text-white">No dates</span>
+            </label>
+            <label className="flex items-center gap-3 cursor-pointer hover:bg-[#3b444c] p-1.5 rounded transition-colors group">
+              <input
+                type="checkbox"
+                className="w-4 h-4 accent-[#579dff] cursor-pointer"
+                checked={filter.overdue}
+                onChange={() => setFilter(prev => ({ ...prev, overdue: !prev.overdue }))}
+              />
+              <Clock size={14} className="text-red-400" />
+              <span className="text-sm text-white">Overdue</span>
+            </label>
+            <label className="flex items-center gap-3 cursor-pointer hover:bg-[#3b444c] p-1.5 rounded transition-colors group">
+              <input
+                type="checkbox"
+                className="w-4 h-4 accent-[#579dff] cursor-pointer"
+                checked={filter.dueSoon}
+                onChange={() => setFilter(prev => ({ ...prev, dueSoon: !prev.dueSoon }))}
+              />
+              <Clock size={14} className="text-[#f5cd47]" />
+              <span className="text-sm text-white">Due in the next 24 hours</span>
+            </label>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -28,6 +28,7 @@ export interface Card {
   title: string;
   position: number;
   description?: string;
+  start_date?: string;
   due_date?: string;
   is_archived?: boolean;
   is_completed?: boolean;

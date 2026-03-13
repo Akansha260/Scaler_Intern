@@ -1,33 +1,28 @@
 @import "tailwindcss";
 
+/* Active drag state — kills transitions so position follows pointer */
 .dragging {
   transition: none !important;
   z-index: 9999 !important;
 }
 
-/* Ensure no transitions interfere with position updates during drag */
-[data-rbd-draggable-context-id] {
-  transition: none !important;
+/* Modal animations */
+@keyframes modal-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
-
-/* Aggressively clean up ghost artifacts */
-[data-rbd-draggable-id] {
-  transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s !important;
+@keyframes modal-zoom-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
 }
-
-/* Clean up ghost artifacts when not dragging */
-[data-rbd-draggable-id]:not(.dragging) {
-  ring-width: 0 !important;
-  box-shadow: none !important;
-  border-width: 1px !important;
-  outline: none !important;
-}
+.modal-backdrop { animation: modal-fade-in 0.15s ease-out; }
+.modal-content { animation: modal-zoom-in 0.2s ease-out; }
 
 @layer base {
   :root {
-    --background: #0079bf;
-    /* Trello classic blue */
-    --foreground: #172b4d;
+    --background: #1d2125;
+    /* Premium dark */
+    --foreground: #ffffff;
 
     --card: #ffffff;
     --card-foreground: #172b4d;
@@ -65,8 +60,8 @@
   }
 
   body {
-    background-color: var(--background);
-    color: var(--foreground);
+    background-color: #1d2125;
+    color: #ffffff;
   }
 }
 
@@ -75,7 +70,7 @@
   /* Works on Firefox */
   .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: rgba(9, 30, 66, 0.15) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
   }
 
   .custom-scrollbar::-webkit-scrollbar {
@@ -88,11 +83,21 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: rgba(9, 30, 66, 0.15);
+    background-color: rgba(255, 255, 255, 0.1);
     border-radius: 20px;
+    border: 2px solid transparent;
+    background-clip: content-box;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(9, 30, 66, 0.25);
+    background-color: rgba(255, 255, 255, 0.2);
   }
+
+  /* Colorblind Patterns - Enhanced Visibility (50% Opacity) */
+  .pattern-diagonal { background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(255, 255, 255, 0.5) 5px, rgba(255, 255, 255, 0.5) 10px) !important; }
+  .pattern-dots { background-image: radial-gradient(circle, rgba(255, 255, 255, 0.6) 2px, transparent 2px) !important; background-size: 8px 8px !important; }
+  .pattern-waves { background-image: radial-gradient(circle at 10px 10px, transparent 8px, rgba(255, 255, 255, 0.3) 8.5px, rgba(255, 255, 255, 0.3) 10px, transparent 10.5px) !important; background-size: 20px 20px !important; }
+  .pattern-lines { background-image: repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(255, 255, 255, 0.5) 4px, rgba(255, 255, 255, 0.5) 8px) !important; }
+  .pattern-vertical { background-image: repeating-linear-gradient(90deg, transparent, transparent 4px, rgba(255, 255, 255, 0.5) 4px, rgba(255, 255, 255, 0.5) 8px) !important; }
+  .pattern-checkered { background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.6) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.6) 75%, rgba(255, 255, 255, 0.6)), linear-gradient(45deg, rgba(255, 255, 255, 0.6) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.6) 75%, rgba(255, 255, 255, 0.6)) !important; background-size: 10px 10px !important; background-position: 0 0, 5px 5px !important; }
 }

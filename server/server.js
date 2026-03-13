@@ -32,12 +32,12 @@ app.get('/api/labels', async (req, res) => {
     const { boardId } = req.query;
     let query = 'SELECT * FROM labels';
     let params = [];
-    
+
     if (boardId) {
       query += ' WHERE board_id = $1';
       params.push(boardId);
     }
-    
+
     const result = await pool.query(query, params);
     res.json(result.rows);
   } catch (err) {

@@ -87,18 +87,18 @@ const List = memo(function List({
     <Draggable draggableId={`list-${list.id}`} index={index} isDragDisabled={isDragDisabled}>
       {(provided) => (
         <div 
-          className="w-[272px] shrink-0 bg-[#ebecf0] rounded-lg p-2 flex flex-col max-h-full"
+          className="w-[300px] shrink-0 bg-[#101204] rounded-lg p-2 flex flex-col max-h-full border border-[#3b444c] shadow-md"
           ref={provided.innerRef}
           {...provided.draggableProps}
         >
           <div 
-            className="pb-2 font-semibold text-[#172b4d] flex justify-between items-center group px-1"
+            className="pb-2 font-semibold text-white flex justify-between items-center group px-2 pt-1"
             {...provided.dragHandleProps}
           >
             {isEditingTitle ? (
               <input
                 ref={inputRef}
-                className="text-sm px-1.5 py-1 font-semibold border-2 border-blue-500 rounded outline-none w-full"
+                className="text-sm px-1.5 py-1 font-semibold border-2 border-[#579dff] bg-[#22272b] text-white rounded outline-none w-full"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 onBlur={handleUpdateTitle}
@@ -119,7 +119,7 @@ const List = memo(function List({
               </h2>
             )}
             <button 
-              className="p-1 rounded-md hover:bg-black/10 text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity ml-1 shrink-0"
+              className="p-1 rounded-md hover:bg-white/5 text-white/70 opacity-0 group-hover:opacity-100 transition-opacity ml-1 shrink-0"
               onClick={() => setShowDeleteConfirm(true)}
               title="Delete list"
             >
@@ -141,7 +141,7 @@ const List = memo(function List({
           <Droppable droppableId={list.id.toString()} type="card">
             {(provided, snapshot) => (
               <div 
-                className={`flex-1 overflow-y-auto custom-scrollbar px-1 flex flex-col gap-2 min-h-[100px] transition-colors duration-200 ${snapshot.isDraggingOver ? 'bg-black/5 rounded-md' : ''}`}
+                className={`flex-1 overflow-y-auto custom-scrollbar px-1 flex flex-col gap-2 min-h-[100px] transition-colors duration-200 ${snapshot.isDraggingOver ? 'bg-white/5 rounded-md' : ''}`}
                 ref={provided.innerRef}
                 {...provided.droppableProps}
               >
@@ -167,7 +167,7 @@ const List = memo(function List({
               <div className="flex flex-col gap-1.5 pt-2">
                 <textarea
                   autoFocus
-                  className="w-full px-2 py-1.5 text-sm rounded-lg shadow-sm outline-none resize-none border-none ring-2 ring-blue-500 text-[#172b4d]"
+                  className="w-full px-2 py-1.5 text-sm rounded-lg shadow-sm outline-none resize-none border-none ring-2 ring-[#579dff] bg-[#22272b] text-white"
                   placeholder="Enter a title for this card..."
                   rows={3}
                   value={newCardTitle}
@@ -179,13 +179,13 @@ const List = memo(function List({
                 />
                 <div className="flex items-center gap-2">
                   <button 
-                    className="bg-[#0079bf] hover:bg-[#026aa7] text-white px-3 py-1.5 rounded text-sm font-medium"
+                    className="bg-[#579dff] hover:bg-[#85b8ff] text-[#1d2125] px-3 py-1.5 rounded text-sm font-bold transition-colors"
                     onClick={handleAddCard}
                   >
                     Add card
                   </button>
                   <button 
-                    className="p-1 text-gray-500 hover:text-gray-800 transition-colors"
+                    className="p-1 text-white/70 hover:text-white transition-colors"
                     onClick={() => setIsAddingCard(false)}
                   >
                     <X size={20} />
@@ -194,10 +194,10 @@ const List = memo(function List({
               </div>
             ) : (
               <button 
-                className="text-[#5e6c84] hover:bg-black/10 rounded-md px-2 py-1 w-full text-left transition-colors text-sm font-medium flex items-center gap-1"
+                className="text-white hover:bg-white/5 rounded-md px-2 py-1.5 w-full text-left transition-colors text-sm font-medium flex items-center gap-1.5 mt-1"
                 onClick={() => setIsAddingCard(true)}
               >
-                <Plus size={16} /> Add a card
+                <Plus size={16} className="text-white" /> Add a card
               </button>
             )}
           </div>

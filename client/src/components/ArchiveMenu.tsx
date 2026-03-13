@@ -69,40 +69,40 @@ export default function ArchiveMenu({ boardId, onClose, onRestore, onDelete }: A
   };
 
   return (
-    <div className="fixed inset-y-0 right-0 w-[340px] bg-[#f4f5f7] shadow-2xl z-[70] flex flex-col border-l border-gray-200 animate-in slide-in-from-right duration-200" ref={menuRef}>
-      <div className="flex justify-between items-center p-4 border-b border-gray-200">
-        <h2 className="font-semibold text-[#172b4d] flex items-center gap-2">
+    <div className="fixed top-12 bottom-0 right-0 w-[340px] bg-[#1d2125] shadow-2xl z-[70] flex flex-col border-l border-[#3b444c] animate-in slide-in-from-right duration-200" ref={menuRef}>
+      <div className="flex justify-between items-center p-4 border-b border-[#3b444c]">
+        <h2 className="font-semibold text-white flex items-center gap-2">
           <Archive size={18} /> Archived Items
         </h2>
-        <button onClick={onClose} className="p-1 hover:bg-gray-200 rounded text-gray-600">
+        <button onClick={onClose} className="p-1 hover:bg-white/5 rounded text-white">
           <X size={20} />
         </button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
         {loading ? (
-          <div className="text-center text-gray-500 py-8">Loading...</div>
+          <div className="text-center text-white/50 py-8">Loading...</div>
         ) : archivedCards.length === 0 ? (
-          <div className="text-center text-gray-500 py-8 flex flex-col items-center gap-2">
-            <Archive size={40} className="opacity-20" />
+          <div className="text-center text-white/50 py-8 flex flex-col items-center gap-2">
+            <Archive size={40} className="text-white/20" />
             <p className="text-sm">No archived items found</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
             {archivedCards.map(card => (
-              <div key={card.id} className="bg-white p-3 rounded shadow-sm border border-gray-100 flex flex-col gap-2">
-                <div className="text-sm font-medium text-[#172b4d]">{card.title}</div>
-                <div className="text-[11px] text-gray-500">From list: <span className="font-semibold">{card.list_title}</span></div>
+              <div key={card.id} className="bg-[#22272b] p-3 rounded shadow-sm border border-[#3b444c] flex flex-col gap-2 transition-colors hover:bg-[#2c333a]">
+                <div className="text-sm font-medium text-white">{card.title}</div>
+                <div className="text-[11px] text-white/60">From list: <span className="font-semibold text-white">{card.list_title}</span></div>
                 <div className="flex gap-2 mt-1">
                   <button 
                     onClick={() => handleRestore(card)}
-                    className="flex items-center gap-1 text-[11px] font-semibold text-[#172b4d] hover:bg-gray-100 px-2 py-1 rounded transition-colors"
+                    className="flex items-center gap-1 text-[11px] font-semibold text-white hover:bg-white/5 px-2 py-1 rounded transition-colors"
                   >
                     <RotateCcw size={12} /> Send to board
                   </button>
                   <button 
                     onClick={() => setConfirmDeleteId(card.id)}
-                    className="flex items-center gap-1 text-[11px] font-semibold text-red-600 hover:bg-red-50 px-2 py-1 rounded transition-colors"
+                    className="flex items-center gap-1 text-[11px] font-semibold text-red-400 hover:bg-red-900/20 px-2 py-1 rounded transition-colors"
                   >
                     <Trash2 size={12} /> Delete
                   </button>

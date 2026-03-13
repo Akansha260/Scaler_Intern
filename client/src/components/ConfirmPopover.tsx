@@ -33,19 +33,19 @@ export default function ConfirmPopover({
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 bg-black/5 z-[100] flex justify-center items-center">
+    <div className="fixed inset-0 bg-black/40 z-[200] flex justify-center items-center">
       <div 
         ref={popoverRef}
-        className="bg-white rounded-lg shadow-2xl w-[300px] overflow-hidden border border-gray-200 animate-in fade-in zoom-in duration-150"
+        className="bg-[#282e33] rounded-lg shadow-2xl w-[300px] overflow-hidden border border-[#454f59] animate-in fade-in zoom-in duration-150"
       >
-        <div className="flex justify-between items-center px-4 py-3 border-b border-gray-100">
-          <h3 className="text-sm font-semibold text-[#44546f] w-full text-center">{title}</h3>
-          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded text-[#44546f] absolute right-2">
+        <div className="flex justify-between items-center px-4 py-3 border-b border-[#3b444c]">
+          <h3 className="text-sm font-semibold text-white w-full text-center">{title}</h3>
+          <button onClick={onClose} className="p-1 hover:bg-white/5 rounded text-white absolute right-2">
             <X size={14} />
           </button>
         </div>
         <div className="p-4 flex flex-col gap-4">
-          <p className="text-sm text-[#172b4d] leading-relaxed">
+          <p className="text-sm text-white leading-relaxed">
             {message}
           </p>
           <button
@@ -53,10 +53,10 @@ export default function ConfirmPopover({
               onConfirm();
               onClose();
             }}
-            className={`w-full py-2 rounded font-medium text-sm transition-colors ${
+            className={`w-full py-2 rounded font-bold text-sm transition-colors ${
               variant === "danger" 
                 ? "bg-[#ae2e24] hover:bg-[#c9372c] text-white" 
-                : "bg-[#0c66e4] hover:bg-[#0055cc] text-white"
+                : "bg-[#579dff] hover:bg-[#85b8ff] text-[#1d2125]"
             }`}
           >
             {confirmLabel}

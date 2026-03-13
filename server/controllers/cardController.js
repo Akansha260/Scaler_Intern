@@ -6,12 +6,15 @@ const getCardDetails = async (req, res) => {
     const result = await pool.query(`
       SELECT 
         c.*,
+        l2.title as list_title,
         (SELECT COUNT(*)::INT FROM checklist_items ci JOIN checklists ch2 ON ch2.id = ci.checklist_id WHERE ch2.card_id = c.id AND ci.is_completed = true) as checklist_completed,
         (SELECT COUNT(*)::INT FROM checklist_items ci JOIN checklists ch2 ON ch2.id = ci.checklist_id WHERE ch2.card_id = c.id) as checklist_total,
         (SELECT COALESCE(json_agg(json_build_object('id', l.id, 'name', l.name, 'color', l.color)), '[]') FROM card_labels cl JOIN labels l ON l.id = cl.label_id WHERE cl.card_id = c.id) AS labels,
         (SELECT COALESCE(json_agg(json_build_object('id', u.id, 'name', u.name)), '[]') FROM card_members cm JOIN users u ON u.id = cm.user_id WHERE cm.card_id = c.id) AS members,
         (SELECT COALESCE(json_agg(json_build_object('id', ch.id, 'title', ch.title, 'items', (SELECT COALESCE(json_agg(json_build_object('id', chi.id, 'title', chi.title, 'is_completed', chi.is_completed, 'position', chi.position) ORDER BY chi.position), '[]') FROM checklist_items chi WHERE chi.checklist_id = ch.id))), '[]') FROM checklists ch WHERE ch.card_id = c.id) AS checklists
-      FROM cards c WHERE c.id = $1
+      FROM cards c 
+      LEFT JOIN lists l2 ON l2.id = c.list_id
+      WHERE c.id = $1
     `, [id]);
 
     if (result.rows.length === 0) return res.status(404).json({ message: 'Card not found' });
@@ -65,11 +68,30 @@ const moveCards = async (req, res) => {
 const updateCard = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, due_date, is_archived, is_completed } = req.body;
-    const result = await pool.query(
-      `UPDATE cards SET title = COALESCE($1,title), description = COALESCE($2,description), due_date = COALESCE($3,due_date), is_archived = COALESCE($4,is_archived), is_completed = COALESCE($5,is_completed) WHERE id = $6 RETURNING *`,
-      [title, description, due_date, is_archived, is_completed, id]
-    );
+    const updates = req.body;
+    
+    // Explicitly handle fields we want to allow updating
+    const allowedFields = ['title', 'description', 'start_date', 'due_date', 'is_archived', 'is_completed', 'position', 'list_id'];
+    const setClause = [];
+    const values = [];
+    let paramIndex = 1;
+
+    for (const field of allowedFields) {
+      if (updates.hasOwnProperty(field)) {
+        setClause.push(`${field} = $${paramIndex}`);
+        values.push(updates[field]);
+        paramIndex++;
+      }
+    }
+
+    if (setClause.length === 0) {
+      return res.status(400).json({ message: 'No valid fields provided for update' });
+    }
+
+    values.push(id);
+    const query = `UPDATE cards SET ${setClause.join(', ')} WHERE id = $${paramIndex} RETURNING *`;
+    
+    const result = await pool.query(query, values);
     if (result.rows.length === 0) return res.status(404).json({ message: 'Card not found' });
     res.json(result.rows[0]);
   } catch (err) {
@@ -189,6 +211,37 @@ const updateChecklist = async (req, res) => {
   }
 };
 
+const deleteChecklist = async (req, res) => {
+  try {
+    const { id, checklistId } = req.params;
+    // First delete all items in the checklist
+    await pool.query('DELETE FROM checklist_items WHERE checklist_id = $1', [checklistId]);
+    // Then delete the checklist itself
+    const result = await pool.query('DELETE FROM checklists WHERE id = $1 AND card_id = $2 RETURNING *', [checklistId, id]);
+    
+    if (result.rows.length === 0) return res.status(404).json({ message: 'Checklist not found' });
+    res.json({ message: 'Checklist deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error deleting checklist' });
+  }
+};
+
+const deleteChecklistItem = async (req, res) => {
+  try {
+    const { id, itemId } = req.params;
+    const result = await pool.query(
+      `DELETE FROM checklist_items WHERE id = $1 AND checklist_id IN (SELECT id FROM checklists WHERE card_id = $2) RETURNING *`,
+      [itemId, id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ message: 'Item not found' });
+    res.json({ message: 'Item deleted' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error deleting checklist item' });
+  }
+};
+
 module.exports = {
   getCardDetails,
   createCard,
@@ -202,5 +255,7 @@ module.exports = {
   removeLabel,
   addMember,
   removeMember,
-  updateChecklist
+  updateChecklist,
+  deleteChecklistItem,
+  deleteChecklist
 };
