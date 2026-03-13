@@ -1,20 +1,9 @@
 const { Pool } = require('pg');
 
-const pool = new Pool(
-  process.env.DATABASE_URL
-    ? {
-        connectionString: process.env.DATABASE_URL,
-        ssl: { rejectUnauthorized: false }
-      }
-    : {
-        user: process.env.DB_USER || 'postgres',
-        host: process.env.DB_HOST || 'localhost',
-        database: process.env.DB_NAME || 'trello_clone',
-        password: process.env.DB_PASSWORD || 'postgres',
-        port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 5432,
-        ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
-      }
-);
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || 'postgresql://ak_project_user:yfpGa4jtlj46iqcjKLe6bwDFwSJ9nO9y@dpg-d6q3v47kijhs739pn97g-a.oregon-postgres.render.com/ak_project',
+  ssl: { rejectUnauthorized: false }
+});
 
 // Log when a new connection is established
 pool.on('connect', () => {
