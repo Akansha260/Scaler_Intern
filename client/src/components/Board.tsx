@@ -11,6 +11,7 @@ import { useBoard } from "@/hooks/useBoard";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { Plus, X } from "lucide-react";
 import { DragDropContext, Droppable, DropResult } from "@hello-pangea/dnd";
+import { apiUrl } from "@/lib/utils";
 
 export default function Board({ initialBoard }: { initialBoard: BoardType }) {
   const {
@@ -54,7 +55,7 @@ export default function Board({ initialBoard }: { initialBoard: BoardType }) {
 
   const handleBoardDelete = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/boards/${board.id}`, { method: 'DELETE' });
+      const res = await fetch(apiUrl(`boards/${board.id}`), { method: 'DELETE' });
       if (res.ok) window.location.href = '/';
     } catch (err) { console.error(err); }
   };
@@ -95,7 +96,7 @@ export default function Board({ initialBoard }: { initialBoard: BoardType }) {
         if (filter.members.length > 0 && !card.members?.some(m => filter.members.includes(m.id))) return false;
         if (filter.noLabels && card.labels?.length > 0) return false;
         if (filter.labels.length > 0 && !card.labels?.some(l => filter.labels.includes(l.id))) return false;
-        
+
         if (filter.noDueDate && card.due_date) return false;
         if (filter.overdue) {
           if (!card.due_date || card.is_completed) return false;
@@ -113,7 +114,7 @@ export default function Board({ initialBoard }: { initialBoard: BoardType }) {
 
         if (filter.complete && !card.is_completed) return false;
         if (filter.incomplete && card.is_completed) return false;
-        
+
         return true;
       }),
     }));

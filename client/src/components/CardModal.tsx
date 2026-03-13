@@ -2,15 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
-import { 
-  X, 
-  AlignLeft, 
-  Tag, 
-  User as UserIcon, 
-  Clock, 
-  CheckSquare, 
-  MoreHorizontal, 
-  Archive, 
+import {
+  X,
+  AlignLeft,
+  Tag,
+  User as UserIcon,
+  Clock,
+  CheckSquare,
+  MoreHorizontal,
+  Archive,
   Trash2,
   Calendar,
   CreditCard
@@ -40,14 +40,14 @@ export default function CardModal({
   const [titleInput, setTitleInput] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [startDate, setStartDate] = useState("");
-  
+
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [allLabels, setAllLabels] = useState<any[]>([]);
   const [showMemberPopover, setShowMemberPopover] = useState(false);
   const [showLabelPopover, setShowLabelPopover] = useState(false);
   const [showChecklistPopover, setShowChecklistPopover] = useState(false);
   const [newChecklistTitle, setNewChecklistTitle] = useState("Checklist");
-  
+
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDatePopover, setShowDatePopover] = useState(false);
@@ -68,7 +68,7 @@ export default function CardModal({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
-      
+
       if (showChecklistPopover && checklistPopoverRef.current && !checklistPopoverRef.current.contains(target)) {
         setShowChecklistPopover(false);
       }
@@ -91,17 +91,17 @@ export default function CardModal({
         setDescInput(data.description || "");
         setTitleInput(data.title || "");
         if (data.due_date) {
-            setDueDate(data.due_date);
+          setDueDate(data.due_date);
         } else {
-            setDueDate("");
+          setDueDate("");
         }
         if (data.start_date) {
-            setStartDate(data.start_date);
+          setStartDate(data.start_date);
         } else {
-            setStartDate("");
+          setStartDate("");
         }
       });
-      
+
     fetch(apiUrl("users")).then(res => res.json()).then(setAllUsers).catch(console.error);
     fetch(apiUrl(`labels?boardId=${boardId}`)).then(res => res.json()).then(setAllLabels).catch(console.error);
   }, [cardId, boardId]);
@@ -183,7 +183,7 @@ export default function CardModal({
       body: JSON.stringify({ title: title.trim() }),
     });
     if (res.ok) {
-        saveCardAttribute({}); // Trigger refresh
+      saveCardAttribute({}); // Trigger refresh
     }
   };
 
@@ -249,27 +249,27 @@ export default function CardModal({
       const scrollHeight = scrollContainer.scrollHeight;
       const scrollWidth = scrollContainer.clientWidth;
       const scrollTop = scrollContainer.scrollTop;
-      
-      const popoverWidth = 280; 
-      const popoverHeight = 350; 
-      
+
+      const popoverWidth = 280;
+      const popoverHeight = 350;
+
       // Calculate top/left relative to the scrollable container
       let top = rect.bottom - scrollRect.top + scrollTop + 5;
       let left = rect.left - scrollRect.left;
-      
+
       // Ensure it doesn't overflow right
       if (left + popoverWidth > scrollWidth) {
         left = scrollWidth - popoverWidth - 10;
       }
-      
+
       // If it would overflow the scroll content at the bottom, try showing above
       if (top + popoverHeight > scrollHeight && (rect.top - scrollRect.top + scrollTop) > popoverHeight) {
-         top = rect.top - scrollRect.top + scrollTop - popoverHeight - 5;
+        top = rect.top - scrollRect.top + scrollTop - popoverHeight - 5;
       }
-      
+
       setPopoverPos({ top, left });
     }
-    
+
     if (type === 'members') setShowMemberPopover(true);
     if (type === 'labels') setShowLabelPopover(true);
     if (type === 'checklist') setShowChecklistPopover(true);
@@ -288,25 +288,22 @@ export default function CardModal({
   };
 
   const handleDeleteChecklist = async (checklistId: number) => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/cards/${cardId}/checklists/${checklistId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+  try {
+    const response = await fetch(apiUrl(`cards/${cardId}/checklists/${checklistId}`), {
+      method: "DELETE",
+    });
 
-      if (!response.ok) throw new Error('Failed to delete checklist');
+    if (!response.ok) throw new Error("Failed to delete checklist");
 
-      setCard((prev: any) => ({
-        ...prev,
-        checklists: prev.checklists?.filter((cl: any) => cl.id !== checklistId) || []
-      }));
-    } catch (err) {
-      console.error('Error deleting checklist:', err);
-    }
-  };
+    setCard((prev: any) => ({
+      ...prev,
+      checklists: prev.checklists?.filter((cl: any) => cl.id !== checklistId) || []
+    }));
 
+  } catch (err) {
+    console.error("Error deleting checklist:", err);
+  }
+};
   if (!card) return <div className="fixed inset-0 bg-black/50 z-50 flex justify-center items-center"><div className="bg-white p-4 rounded text-black">Loading...</div></div>;
 
   return (
@@ -325,35 +322,35 @@ export default function CardModal({
         <div className="p-4 pt-0 flex-1 overflow-y-auto custom-scrollbar modal-body-scroll relative">
           <div className="flex flex-col gap-1">
             <div className="flex gap-4 items-center">
-               <div 
-                 className={`w-6 h-6 rounded border-2 flex items-center justify-center cursor-pointer transition-all shrink-0 ${card.is_completed ? 'bg-[#1f845a] border-[#1f845a] text-white' : 'border-gray-300 hover:border-gray-400 bg-white'}`} 
-                 onClick={() => saveCardAttribute({ is_completed: !card.is_completed })}
-                 title="Mark as complete"
-               >
-                 {card.is_completed && <CheckSquare size={14} />}
-               </div>
-                <div className="flex-1">
-                  {isEditingTitle ? (
-                   <input 
-                     autoFocus
-                     className="text-2xl font-bold bg-[#22272b] border-2 border-[#579dff] rounded px-2 py-0.5 w-full outline-none text-white"
-                     value={titleInput}
-                     onChange={e => setTitleInput(e.target.value)}
-                     onBlur={() => { setIsEditingTitle(false); handleTitleUpdate(); }}
-                     onKeyDown={e => {
-                       if (e.key === 'Enter') { setIsEditingTitle(false); handleTitleUpdate(); }
-                       if (e.key === 'Escape') { setTitleInput(card.title); setIsEditingTitle(false); }
-                     }}
-                   />
-                 ) : (
-                   <h2 
-                     className="text-2xl font-bold cursor-pointer w-full hover:bg-white/5 px-2 py-0.5 rounded -ml-2 transition-colors leading-tight text-white"
-                     onClick={() => setIsEditingTitle(true)}
-                   >
-                     {card.title}
-                   </h2>
-                 )}
-               </div>
+              <div
+                className={`w-6 h-6 rounded border-2 flex items-center justify-center cursor-pointer transition-all shrink-0 ${card.is_completed ? 'bg-[#1f845a] border-[#1f845a] text-white' : 'border-gray-300 hover:border-gray-400 bg-white'}`}
+                onClick={() => saveCardAttribute({ is_completed: !card.is_completed })}
+                title="Mark as complete"
+              >
+                {card.is_completed && <CheckSquare size={14} />}
+              </div>
+              <div className="flex-1">
+                {isEditingTitle ? (
+                  <input
+                    autoFocus
+                    className="text-2xl font-bold bg-[#22272b] border-2 border-[#579dff] rounded px-2 py-0.5 w-full outline-none text-white"
+                    value={titleInput}
+                    onChange={e => setTitleInput(e.target.value)}
+                    onBlur={() => { setIsEditingTitle(false); handleTitleUpdate(); }}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') { setIsEditingTitle(false); handleTitleUpdate(); }
+                      if (e.key === 'Escape') { setTitleInput(card.title); setIsEditingTitle(false); }
+                    }}
+                  />
+                ) : (
+                  <h2
+                    className="text-2xl font-bold cursor-pointer w-full hover:bg-white/5 px-2 py-0.5 rounded -ml-2 transition-colors leading-tight text-white"
+                    onClick={() => setIsEditingTitle(true)}
+                  >
+                    {card.title}
+                  </h2>
+                )}
+              </div>
             </div>
           </div>
 
@@ -369,7 +366,7 @@ export default function CardModal({
                     {member.name[0]?.toUpperCase()}
                   </div>
                 ))}
-                <button 
+                <button
                   className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-white flex items-center justify-center transition-colors"
                   onClick={(e) => openPopover(e, 'members')}
                   title="Add member"
@@ -382,47 +379,46 @@ export default function CardModal({
             {/* Dates Group */}
             <div className="flex flex-col min-w-[150px]">
               <h3 className="text-[11px] font-bold text-white uppercase tracking-wider mb-2">Dates</h3>
-              <div 
-                className={`flex items-center gap-2 transition-colors cursor-pointer relative group ${
-                  startDate || dueDate ? "bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded w-fit" : "px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded text-sm font-medium text-white"
-                }`} 
+              <div
+                className={`flex items-center gap-2 transition-colors cursor-pointer relative group ${startDate || dueDate ? "bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded w-fit" : "px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded text-sm font-medium text-white"
+                  }`}
                 onClick={() => setShowDatePopover(true)}
               >
                 <div className="flex items-center gap-2">
-                   <Clock size={16} className="text-white" />
-                   <span className="text-sm font-medium text-white">
-                      {startDate || dueDate ? (
-                        <>
-                          {startDate && new Date(startDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                          {startDate && dueDate && " - "}
-                          {dueDate && new Date(dueDate).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
-                        </>
-                      ) : "Set dates"}
-                   </span>
-                    {dueDate && (() => {
-                      const due = new Date(dueDate);
-                      const now = new Date();
-                      const isOverdue = due < now;
-                      const diffInHrs = (due.getTime() - now.getTime()) / (1000 * 60 * 60);
-                      const isDueSoon = diffInHrs >= 0 && diffInHrs <= 24;
-                      
-                      if (card.is_completed) return (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ml-1 bg-[#1f845a] text-white">
-                          Complete
-                        </span>
-                      );
-                      if (isOverdue) return (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ml-1 bg-red-500 text-white">
-                          Overdue
-                        </span>
-                      );
-                      if (isDueSoon) return (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ml-1 bg-[#f5cd47] text-black">
-                          Due Soon
-                        </span>
-                      );
-                      return null;
-                    })()}
+                  <Clock size={16} className="text-white" />
+                  <span className="text-sm font-medium text-white">
+                    {startDate || dueDate ? (
+                      <>
+                        {startDate && new Date(startDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                        {startDate && dueDate && " - "}
+                        {dueDate && new Date(dueDate).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                      </>
+                    ) : "Set dates"}
+                  </span>
+                  {dueDate && (() => {
+                    const due = new Date(dueDate);
+                    const now = new Date();
+                    const isOverdue = due < now;
+                    const diffInHrs = (due.getTime() - now.getTime()) / (1000 * 60 * 60);
+                    const isDueSoon = diffInHrs >= 0 && diffInHrs <= 24;
+
+                    if (card.is_completed) return (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ml-1 bg-[#1f845a] text-white">
+                        Complete
+                      </span>
+                    );
+                    if (isOverdue) return (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ml-1 bg-red-500 text-white">
+                        Overdue
+                      </span>
+                    );
+                    if (isDueSoon) return (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ml-1 bg-[#f5cd47] text-black">
+                        Due Soon
+                      </span>
+                    );
+                    return null;
+                  })()}
                 </div>
               </div>
             </div>
@@ -432,23 +428,21 @@ export default function CardModal({
               <h3 className="text-[11px] font-bold text-white uppercase tracking-wider mb-2">Labels</h3>
               <div className="flex items-center gap-2 flex-wrap">
                 {card.labels?.map((label: any) => (
-                  <div 
-                    key={label.id} 
-                    className={`h-8 w-11 flex items-center justify-center rounded text-white text-xs font-bold shadow-sm transition-all hover:brightness-95 cursor-pointer ${
-                      colorblindMode ? getPatternClass(label.color) : ''
-                    }`}
+                  <div
+                    key={label.id}
+                    className={`h-8 w-11 flex items-center justify-center rounded text-white text-xs font-bold shadow-sm transition-all hover:brightness-95 cursor-pointer ${colorblindMode ? getPatternClass(label.color) : ''
+                      }`}
                     style={{ backgroundColor: label.color }}
                     title={label.name || label.color}
                     onClick={(e) => openPopover(e, 'labels')}
                   >
                   </div>
                 ))}
-                <button 
-                  className={`flex items-center justify-center transition-colors ${
-                    card.labels?.length > 0 
-                    ? "w-8 h-8 rounded bg-white/5 hover:bg-white/10 text-white" 
+                <button
+                  className={`flex items-center justify-center transition-colors ${card.labels?.length > 0
+                    ? "w-8 h-8 rounded bg-white/5 hover:bg-white/10 text-white"
                     : "px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded text-sm font-medium gap-2 text-white"
-                  }`}
+                    }`}
                   onClick={(e) => openPopover(e, 'labels')}
                   title="Add label"
                 >
@@ -462,7 +456,7 @@ export default function CardModal({
             {(!card.checklists || card.checklists.length === 0) && (
               <div className="flex flex-col min-w-[100px]">
                 <h3 className="text-[11px] font-bold text-white uppercase tracking-wider mb-2">Add</h3>
-                <button 
+                <button
                   className="px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded text-sm font-medium flex items-center gap-2 transition-colors transition-all w-fit text-white"
                   onClick={(e) => openPopover(e, 'checklist')}
                 >
@@ -471,34 +465,34 @@ export default function CardModal({
               </div>
             )}
           </div>
-          
+
           <div className="flex gap-4">
-             <AlignLeft className="mt-1 flex-shrink-0 text-white" size={24} />
-             <div className="flex-1">
-               <h3 className="font-semibold text-lg mb-3 text-white">Description</h3>
-               {isEditingDesc ? (
-                  <div className="flex flex-col gap-2">
-                    <textarea 
-                      className="w-full bg-[#161a1d] border-none ring-2 ring-[#579dff] rounded-md p-3 text-sm outline-none resize-none text-white min-h-[100px] shadow-sm"
-                      autoFocus
-                      value={descInput}
-                      onChange={e => setDescInput(e.target.value)}
-                      placeholder="Add a more detailed description..."
-                    />
-                    <div className="flex items-center gap-2">
-                      <button onClick={() => { setIsEditingDesc(false); saveCardAttribute({ description: descInput }); }} className="bg-[#579dff] hover:bg-[#85b8ff] text-[#1d2125] px-3 py-1.5 rounded text-sm font-bold transition-colors">Save</button>
-                      <button onClick={() => { setIsEditingDesc(false); setDescInput(card.description || ""); }} className="px-2 py-1.5 hover:bg-white/5 text-white rounded transition-colors text-sm font-medium">Cancel</button>
-                    </div>
+            <AlignLeft className="mt-1 flex-shrink-0 text-white" size={24} />
+            <div className="flex-1">
+              <h3 className="font-semibold text-lg mb-3 text-white">Description</h3>
+              {isEditingDesc ? (
+                <div className="flex flex-col gap-2">
+                  <textarea
+                    className="w-full bg-[#161a1d] border-none ring-2 ring-[#579dff] rounded-md p-3 text-sm outline-none resize-none text-white min-h-[100px] shadow-sm"
+                    autoFocus
+                    value={descInput}
+                    onChange={e => setDescInput(e.target.value)}
+                    placeholder="Add a more detailed description..."
+                  />
+                  <div className="flex items-center gap-2">
+                    <button onClick={() => { setIsEditingDesc(false); saveCardAttribute({ description: descInput }); }} className="bg-[#579dff] hover:bg-[#85b8ff] text-[#1d2125] px-3 py-1.5 rounded text-sm font-bold transition-colors">Save</button>
+                    <button onClick={() => { setIsEditingDesc(false); setDescInput(card.description || ""); }} className="px-2 py-1.5 hover:bg-white/5 text-white rounded transition-colors text-sm font-medium">Cancel</button>
                   </div>
-               ) : (
-                  <p 
-                    className="text-white text-sm bg-white/5 hover:bg-white/10 p-3 rounded-lg leading-relaxed cursor-pointer transition-colors"
-                    onClick={() => setIsEditingDesc(true)}
-                  >
-                    {card.description || "Add a more detailed description..."}
-                  </p>
-               )}
-             </div>
+                </div>
+              ) : (
+                <p
+                  className="text-white text-sm bg-white/5 hover:bg-white/10 p-3 rounded-lg leading-relaxed cursor-pointer transition-colors"
+                  onClick={() => setIsEditingDesc(true)}
+                >
+                  {card.description || "Add a more detailed description..."}
+                </p>
+              )}
+            </div>
           </div>
 
           {card.checklists?.length > 0 && (
@@ -507,12 +501,12 @@ export default function CardModal({
                 className="bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-md text-sm flex items-center gap-2 text-white font-medium transition-colors w-fit"
                 onClick={(e) => openPopover(e, 'checklist')}
               >
-                <CheckSquare size={16}/> Add Checklist
+                <CheckSquare size={16} /> Add Checklist
               </button>
             </div>
           )}
 
-          <ChecklistSection 
+          <ChecklistSection
             checklists={card.checklists}
             onToggleItem={handleToggleChecklist}
             onAddItem={handleAddChecklistItem}
@@ -523,22 +517,22 @@ export default function CardModal({
 
           <div className="mt-8 flex items-center justify-between border-t border-[#3b444c] pt-6">
             <div className="flex items-center gap-4">
-               <button onClick={() => setShowArchiveConfirm(true)} className="flex items-center gap-2 text-sm text-white hover:bg-white/5 px-2 py-1 rounded transition-colors font-medium">
-                 <Archive size={16} /> Archive
-               </button>
-               <button onClick={() => setShowDeleteConfirm(true)} className="flex items-center gap-2 text-sm text-red-400 hover:text-red-300 font-medium">
-                 <Trash2 size={16} /> Delete
-               </button>
+              <button onClick={() => setShowArchiveConfirm(true)} className="flex items-center gap-2 text-sm text-white hover:bg-white/5 px-2 py-1 rounded transition-colors font-medium">
+                <Archive size={16} /> Archive
+              </button>
+              <button onClick={() => setShowDeleteConfirm(true)} className="flex items-center gap-2 text-sm text-red-400 hover:text-red-300 font-medium">
+                <Trash2 size={16} /> Delete
+              </button>
             </div>
           </div>
 
           {showMemberPopover && (
-            <div 
-              className="absolute w-64 bg-[#282e33] border border-[#454f59] rounded shadow-2xl z-[100] p-2" 
+            <div
+              className="absolute w-64 bg-[#282e33] border border-[#454f59] rounded shadow-2xl z-[100] p-2"
               ref={memberPopoverRef}
               style={{ top: popoverPos.top, left: popoverPos.left }}
             >
-              <div className="flex justify-between items-center mb-2 pb-2 border-b border-[#454f59]"><h4 className="font-semibold text-sm w-full text-center text-white">Members</h4><button onClick={() => setShowMemberPopover(false)} className="text-white hover:bg-white/10 rounded p-0.5"><X size={14}/></button></div>
+              <div className="flex justify-between items-center mb-2 pb-2 border-b border-[#454f59]"><h4 className="font-semibold text-sm w-full text-center text-white">Members</h4><button onClick={() => setShowMemberPopover(false)} className="text-white hover:bg-white/10 rounded p-0.5"><X size={14} /></button></div>
               <div className="flex flex-col gap-2">
                 {allUsers.map(u => {
                   const isSelected = card.members?.some((m: any) => m.id === u.id);
@@ -555,21 +549,21 @@ export default function CardModal({
           )}
 
           {showLabelPopover && (
-            <div 
-              className="absolute w-72 bg-[#282e33] border border-[#454f59] rounded shadow-2xl z-[100] p-2" 
+            <div
+              className="absolute w-72 bg-[#282e33] border border-[#454f59] rounded shadow-2xl z-[100] p-2"
               ref={labelPopoverRef}
               style={{ top: popoverPos.top, left: popoverPos.left }}
             >
-              <div className="flex justify-between items-center mb-2 pb-2 border-b border-[#454f59]"><h4 className="font-semibold text-sm w-full text-center text-white">Labels</h4><button onClick={() => setShowLabelPopover(false)} className="text-white hover:bg-white/10 rounded p-0.5"><X size={14}/></button></div>
+              <div className="flex justify-between items-center mb-2 pb-2 border-b border-[#454f59]"><h4 className="font-semibold text-sm w-full text-center text-white">Labels</h4><button onClick={() => setShowLabelPopover(false)} className="text-white hover:bg-white/10 rounded p-0.5"><X size={14} /></button></div>
               <div className="flex flex-col gap-1.5 p-1">
                 {allLabels.map(l => {
                   const isSelected = card.labels?.some((lbl: any) => lbl.id === l.id);
                   return (
                     <div key={l.id} className="flex items-center gap-2 group">
                       <input type="checkbox" checked={!!isSelected} onChange={() => handleToggleLabel(l.id)} className="w-4 h-4 cursor-pointer accent-[#579dff] shrink-0" />
-                      <div 
+                      <div
                         onClick={() => handleToggleLabel(l.id)}
-                        className={`h-8 flex-1 rounded cursor-pointer transition-all hover:brightness-90 flex items-center px-3 text-white text-[11px] font-bold ${colorblindMode ? getPatternClass(l.color) : ''}`} 
+                        className={`h-8 flex-1 rounded cursor-pointer transition-all hover:brightness-90 flex items-center px-3 text-white text-[11px] font-bold ${colorblindMode ? getPatternClass(l.color) : ''}`}
                         style={{ backgroundColor: l.color }}
                         title={l.name}
                       >
@@ -579,7 +573,7 @@ export default function CardModal({
                 })}
               </div>
               <div className="mt-2 pt-2 border-t border-[#454f59] px-1">
-                <button 
+                <button
                   onClick={() => {
                     const next = !colorblindMode;
                     setColorblindMode(next);
@@ -603,7 +597,7 @@ export default function CardModal({
               className="absolute w-64 bg-[#282e33] border border-[#454f59] rounded shadow-xl z-[110] p-2 animate-in fade-in zoom-in duration-100 origin-top-left max-h-[75vh] overflow-y-auto"
               style={{ top: popoverPos.top, left: popoverPos.left }}
             >
-              <div className="flex justify-between items-center mb-2 pb-2 border-b border-[#454f59]"><h4 className="font-semibold text-sm w-full text-center text-white">Add checklist</h4><button onClick={() => setShowChecklistPopover(false)} className="text-white hover:bg-white/10 rounded p-0.5"><X size={14}/></button></div>
+              <div className="flex justify-between items-center mb-2 pb-2 border-b border-[#454f59]"><h4 className="font-semibold text-sm w-full text-center text-white">Add checklist</h4><button onClick={() => setShowChecklistPopover(false)} className="text-white hover:bg-white/10 rounded p-0.5"><X size={14} /></button></div>
               <div className="flex flex-col gap-2">
                 <input type="text" autoFocus value={newChecklistTitle} onChange={e => setNewChecklistTitle(e.target.value)} className="w-full bg-[#161a1d] border-[#454f59] p-1.5 text-sm rounded text-white focus:ring-2 focus:ring-[#579dff] outline-none" onKeyDown={e => e.key === 'Enter' && handleCreateChecklist()} />
                 <button onClick={handleCreateChecklist} className="w-full bg-[#579dff] text-[#1d2125] py-1.5 text-xs font-bold rounded mt-2 hover:bg-[#85b8ff] transition-colors">Add</button>
@@ -616,14 +610,14 @@ export default function CardModal({
         {showDatePopover && (
           <div className="absolute inset-0 flex items-center justify-center z-[110] bg-black/10" onClick={() => setShowDatePopover(false)}>
             <div onClick={e => e.stopPropagation()}>
-              <DatePickerPopover 
+              <DatePickerPopover
                 initialStartDate={startDate}
                 initialDueDate={dueDate}
-                onSave={(start: string | null, due: string | null) => { 
-                    setStartDate(start || ""); 
-                    setDueDate(due || ""); 
-                    saveCardAttribute({ start_date: start, due_date: due });
-                    setShowDatePopover(false); 
+                onSave={(start: string | null, due: string | null) => {
+                  setStartDate(start || "");
+                  setDueDate(due || "");
+                  saveCardAttribute({ start_date: start, due_date: due });
+                  setShowDatePopover(false);
                 }}
                 onClose={() => setShowDatePopover(false)}
               />
@@ -633,7 +627,7 @@ export default function CardModal({
       </div>
 
       {showArchiveConfirm && (
-        <ConfirmPopover 
+        <ConfirmPopover
           title="Archive card?"
           message="Are you sure you want to archive this card?"
           confirmLabel="Archive"
@@ -643,7 +637,7 @@ export default function CardModal({
       )}
 
       {showDeleteConfirm && (
-        <ConfirmPopover 
+        <ConfirmPopover
           title="Delete card?"
           message="Are you sure you want to delete this card forever?"
           confirmLabel="Delete forever"

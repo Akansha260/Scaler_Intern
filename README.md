@@ -1,109 +1,234 @@
 # TaskWeave
 
-A full-stack project management application inspired by Trello, built with Next.js, Express, and PostgreSQL.
+A full-stack **project management application inspired by Trello**, built with **Next.js, Express, and PostgreSQL**.
 
-## Features
+TaskWeave helps teams organize tasks using boards, lists, and cards with features such as drag-and-drop organization, task labeling, checklists, due dates, and filtering.
 
-### 1. Board Management
-- **Create Boards**: Easily create new project boards with descriptive titles.
-- **Detailed View**: Open any board to see all associated lists and cards in a single workspace.
+---
 
-### 2. List Management
-- **Full CRUD**: Create, edit titles, and delete lists as your project evolves.
-- **Reorder with Ease**: Drag and drop to reorder lists across the board to match your workflow.
+# Screenshots
 
-### 3. Card Management
-- **Task Creation**: Add cards to any list with just a title.
-- **Rich Details**: Edit card titles and add detailed descriptions to provide context.
-- **Flexible Organization**:
-  - **Move or Reorder**: Drag and drop cards within a list or between different lists.
-  - **Archive**: Hide cards from view without deleting them, keeping your workspace clutter-free.
-  - **Delete**: Permanently remove tasks when they are no longer needed.
+## Dashboard / Board View
+![Dashboard](Application_Screenshots/Dashboard.png)
 
-### 4. Card Details & Productivity
-- **Visual Labels**: Add and remove color-coded tags to categorize tasks at a glance.
-- **Due Dates**: Set deadlines on cards to stay on top of your schedule.
-- **Interactive Checklists**: Add sub-tasks with progress tracking (mark as complete/incomplete).
-- **Team Assignment**: Assign one or more members to specific cards for clear ownership.
+## Card Details
+![Card Details](Application_Screenshots/Card.png)
 
-### 5. Search & Filter
-- **Powerful Search**: Quickly find any card by searching for keywords in its title.
-- **Granular Filtering**: Narrow down your view by filtering cards based on labels, members, or due dates.
+## Filtering Tasks
+![Filter](Application_Screenshots/Filter_tab.png)
 
-### 6. Accessibility & Design
-- **Colorblind Friendly**: Specially designed patterns for labels to ensure accessibility for all users.
-- **Modern UI**: A sleek, dark-themed interface built for performance and visual clarity.
-- **Persistence**: Fully integrated with a PostgreSQL database for real-time updates across sessions.
+## Archived Cards
+![Archive](Application_Screenshots/Archive_section.png)
 
-## Tech Stack
+---
 
-**Frontend:**
-- **Next.js 16** (App Router)
-- **React 19**
-- **Tailwind CSS 4**
-- **Lucide React** (Icons)
-- **Hello Pangea DND** (Drag and Drop)
+# Features
 
-**Backend:**
-- **Node.js**
-- **Express 5**
-- **PostgreSQL** (Database)
-- **pg** (PostgreSQL client)
-- **Nodemon** (Development server)
+## Board Management
 
-## App Flow
+- Create project boards
+- View lists and cards inside a board
+- Delete boards and associated data
 
-1. **Client**: The Next.js frontend provides a responsive UI for interacting with boards.
-2. **API**: The Express backend handles RESTful requests for boards, lists, cards, and users.
-3. **Database**: PostgreSQL stores all persistent data, including complex relationships like card-labels and card-members.
+## List Management
 
-## Setup Instructions
+- Create lists
+- Edit list titles
+- Delete lists
+- Drag and drop lists to reorder
 
-### Prerequisites
-- **Node.js**: v18 or higher.
-- **PostgreSQL**: Installed and running locally.
+## Card Management
 
-### 1. Database Setup
-1. Create a database named `trello_clone` in PostgreSQL.
-2. Navigate to the `server` directory.
-3. Create a `.env` file (if not already present) with your database credentials:
-   ```env
-   DB_USER=your_postgres_user
-   DB_HOST=localhost
-   DB_NAME=trello_clone
-   DB_PASSWORD=your_password
-   DB_PORT=5432
-   PORT=5000
-   ```
-4. Run the database setup and seeding script (located at `db/setup.js`) by running this command from the `server` directory:
-   ```bash
-   node db/setup.js
-   ```
-   Or use the npm script:
-   ```bash
-   npm run seed
-   ```
+- Create cards inside lists
+- Edit card titles and descriptions
+- Drag cards within or across lists
+- Archive cards
+- Delete cards
 
-### 2. Running Locally
+## Card Productivity Tools
 
-**Start the Backend:**
+- Color coded labels
+- Due dates
+- Interactive checklists
+- Assign members to cards
+
+## Search and Filtering
+
+- Search cards by title
+- Filter cards by:
+  - labels
+  - members
+  - due dates
+
+## UI & Accessibility
+
+- Dark themed interface
+- Drag and drop interactions
+- Colorblind friendly label patterns
+
+---
+
+# Tech Stack
+
+## Frontend
+
+- Next.js 16 (App Router)
+- React 19
+- Tailwind CSS 4
+- Lucide React
+- Hello Pangea DND
+
+## Backend
+
+- Node.js
+- Express 5
+
+## Database
+
+- PostgreSQL
+- pg (PostgreSQL client)
+
+## Development Tools
+
+- Nodemon
+
+---
+
+# Architecture
+
+TaskWeave follows a **client-server architecture**.
+
+### Frontend (Next.js)
+
+Handles:
+
+- UI rendering
+- drag and drop interactions
+- filtering
+- card editing
+
+### Backend (Express API)
+
+Handles:
+
+- REST API requests
+- business logic
+- database communication
+
+### Database (PostgreSQL)
+
+Stores:
+
+- boards
+- lists
+- cards
+- labels
+- members
+- checklist items
+
+---
+
+# API Endpoints
+
+## Boards
+
+```http
+GET /api/boards
+POST /api/boards
+GET /api/boards/:id
+DELETE /api/boards/:id
+```
+
+## Lists
+
+```http
+POST /api/lists
+PATCH /api/lists/reorder
+PATCH /api/lists/:id
+DELETE /api/lists/:id
+```
+
+## Cards
+
+```http
+GET /api/cards/:id
+POST /api/cards
+PATCH /api/cards/:id
+PATCH /api/cards/move
+DELETE /api/cards/:id
+```
+
+### Additional Card Features
+- Checklists
+- Labels
+- Member assignment
+- Archived cards
+
+Full implementations are inside: `server/routes`
+
+---
+
+# Local Setup
+
+## Prerequisites
+- Node.js v18+
+- PostgreSQL installed and running
+
+## Database Setup
+
+1. Create a database in PostgreSQL: `trello_clone`
+2. Inside the `server` directory create a `.env` file.
+
+```env
+DB_USER=your_postgres_user
+DB_HOST=localhost
+DB_NAME=trello_clone
+DB_PASSWORD=your_password
+DB_PORT=5432
+PORT=5000
+```
+
+## Install Dependencies
+
+### Backend
 ```bash
 cd server
 npm install
-npm run dev
 ```
 
-**Start the Frontend:**
+### Frontend
 ```bash
 cd client
 npm install
-npm run dev
 ```
 
-The application will be available at `http://localhost:3000` (Frontend) and `http://localhost:5000` (Backend API).
+## Seed Database
+```bash
+cd server
+npm run seed
+```
 
-## Assumptions
+## Run Backend
+```bash
+cd server
+npm run dev
+```
+Backend runs at `http://localhost:5000`
 
-- **Environment**: Assumes a Unix-like or Windows terminal with Node.js installed.
-- **Database**: Assumes PostgreSQL is listening on the default port `5432`.
-- **CORS**: Configured to allow interactions between `localhost:3000` and `localhost:5000`.
+## Run Frontend
+```bash
+cd client
+npm run dev
+```
+Frontend runs at `http://localhost:3000`
+
+---
+
+# Future Improvements
+
+- File attachments on cards
+- Activity logs
+- Card comments
+- Board background customization
+- Real-time collaboration
+- Notifications
