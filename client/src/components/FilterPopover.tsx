@@ -2,7 +2,7 @@
 
 import { X, User as UserIcon, Calendar, Clock, Tag } from "lucide-react";
 import { Label, User } from "@/types";
-import { Dispatch, SetStateAction, useEffect, useRef } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 
 export interface FilterState {
   keyword: string;
@@ -34,6 +34,27 @@ export default function FilterPopover({
 }: FilterPopoverProps) {
 
   const popoverRef = useRef<HTMLDivElement>(null);
+  const [colorblindMode, setColorblindMode] = useState(false);
+
+  useEffect(() => {
+    const checkMode = () => {
+      setColorblindMode(localStorage.getItem('colorblindMode') === 'true');
+    };
+    checkMode();
+    window.addEventListener('storage', checkMode);
+    return () => window.removeEventListener('storage', checkMode);
+  }, []);
+
+  const getPatternClass = (color: string) => {
+    const c = color.toLowerCase();
+    if (c.includes('green') || c === '#4bce97' || c === '#1f845a') return 'pattern-diagonal';
+    if (c.includes('yellow') || c === '#f5cd47') return 'pattern-dots';
+    if (c.includes('orange') || c === '#fea362') return 'pattern-waves';
+    if (c.includes('red') || c === '#f87168' || c === '#ae2e24') return 'pattern-lines';
+    if (c.includes('blue') || c === '#579dff' || c === '#0052cc') return 'pattern-vertical';
+    if (c.includes('purple') || c.includes('violet') || c === '#9f8fef' || c === '#b658d7') return 'pattern-checkered';
+    return '';
+  };
 
   const toggleMember = (id: number) => {
     setFilter(prev => ({
@@ -211,12 +232,30 @@ export default function FilterPopover({
                 />
 
                 <div
-                  className="h-6 flex-1 rounded"
+                  className={`h-6 flex-1 rounded transition-all ${colorblindMode ? getPatternClass(label.color) : ''}`}
                   style={{ backgroundColor: label.color }}
+                  title={label.name}
                 />
 
               </label>
             ))}
+          </div>
+
+          <div className="mt-2 pt-2 border-t border-[#3b444c]">
+            <button
+              onClick={() => {
+                const next = !colorblindMode;
+                setColorblindMode(next);
+                localStorage.setItem('colorblindMode', String(next));
+                window.dispatchEvent(new Event('storage'));
+              }}
+              className="w-full text-left px-2 py-1.5 hover:bg-[#3b444c] rounded text-[11px] font-medium text-white flex items-center justify-between"
+            >
+              Colorblind friendly patterns
+              <div className={`w-7 h-3.5 rounded-full relative transition-colors ${colorblindMode ? 'bg-[#1f845a]' : 'bg-[#454f59]'}`}>
+                <div className={`absolute top-0.5 w-2.5 h-2.5 bg-white rounded-full transition-all ${colorblindMode ? 'left-[16px]' : 'left-0.5'}`} />
+              </div>
+            </button>
           </div>
         </div>
 

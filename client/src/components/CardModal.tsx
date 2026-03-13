@@ -187,15 +187,24 @@ export default function CardModal({
     }
   };
 
-  const handleDeleteChecklistItem = async (checklistId: number, itemId: number) => {
-    const res = await fetch(apiUrl(`cards/${cardId}/checklist-items/${itemId}`), {
-      method: "DELETE",
-    });
-    if (res.ok) {
-      const res2 = await fetch(apiUrl(`cards/${cardId}`));
-      const fullCard = await res2.json();
-      setCard(fullCard);
-      if (onUpdated) onUpdated(fullCard);
+  const handleDeleteChecklist = async (checklistId: number) => {
+    try {
+
+      const res = await fetch(
+        apiUrl(`cards/${cardId}/checklists/${checklistId}`),
+        { method: "DELETE" }
+      );
+
+      if (!res.ok) throw new Error("Failed to delete checklist");
+
+      // refresh card data
+      const updated = await fetch(apiUrl(`cards/${cardId}`));
+      const updatedCard = await updated.json();
+
+      setCard(updatedCard);
+
+    } catch (err) {
+      console.error("Checklist delete failed", err);
     }
   };
 
@@ -275,6 +284,27 @@ export default function CardModal({
     if (type === 'checklist') setShowChecklistPopover(true);
   };
 
+  const handleDeleteChecklistItem = async (checklistId: number, itemId: number) => {
+    try {
+      const res = await fetch(
+        apiUrl(`cards/checklist-items/${itemId}`),
+        { method: "DELETE" }
+      );
+
+      if (!res.ok) throw new Error("Failed to delete checklist item");
+
+      // refresh card
+      const updated = await fetch(apiUrl(`cards/${cardId}`));
+      const updatedCard = await updated.json();
+
+      setCard(updatedCard);
+      if (onUpdated) onUpdated(updatedCard);
+
+    } catch (err) {
+      console.error("Checklist item delete failed", err);
+    }
+  };
+
   const getPatternClass = (color: string) => {
     const c = color.toLowerCase();
     if (c.includes('green') || c === '#4bce97' || c === '#1f845a') return 'pattern-diagonal';
@@ -287,23 +317,6 @@ export default function CardModal({
     return '';
   };
 
-  const handleDeleteChecklist = async (checklistId: number) => {
-  try {
-    const response = await fetch(apiUrl(`cards/${cardId}/checklists/${checklistId}`), {
-      method: "DELETE",
-    });
-
-    if (!response.ok) throw new Error("Failed to delete checklist");
-
-    setCard((prev: any) => ({
-      ...prev,
-      checklists: prev.checklists?.filter((cl: any) => cl.id !== checklistId) || []
-    }));
-
-  } catch (err) {
-    console.error("Error deleting checklist:", err);
-  }
-};
   if (!card) return <div className="fixed inset-0 bg-black/50 z-50 flex justify-center items-center"><div className="bg-white p-4 rounded text-black">Loading...</div></div>;
 
   return (

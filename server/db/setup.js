@@ -35,11 +35,10 @@ async function setupAndSeed() {
         card_id INTEGER REFERENCES cards(id) ON DELETE CASCADE
       );
 
-      CREATE TABLE IF NOT EXISTS checklist_items (
+      CREATE TABLE IF NOT EXISTS checklists (
         id SERIAL PRIMARY KEY,
         title TEXT NOT NULL,
-        is_completed BOOLEAN DEFAULT false,
-        checklist_id INTEGER REFERENCES checklists(id) ON DELETE CASCADE,
+        card_id INTEGER REFERENCES cards(id) ON DELETE CASCADE,
         position INTEGER NOT NULL DEFAULT 1
       );
 
@@ -131,105 +130,139 @@ async function setupAndSeed() {
     const lists = listsRes.rows;
 
     // Card seed data
-    const now = new Date();
-    const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    const inTwoDays = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+ // Card seed data
+const now = new Date();
+const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+const inTwoDays = new Date(now.getTime() + 48 * 60 * 60 * 1000);
 
-    const cardsData = [
-      { 
-        listId: lists[0].id, title: "Implement Auth Service", pos: 1, 
-        startDate: yesterday.toISOString(), dueDate: tomorrow.toISOString(),
-        labelIndices: [0, 4], memberIndices: [0, 1, 2],
-        checklists: [
-          { title: "Task List", items: ["Setup JWT", "Config Passport", "Database migration"] }
-        ]
-      },
-      { 
-        listId: lists[0].id, title: "Refactor UI Components", pos: 2,
-        labelIndices: [1], memberIndices: [3],
-        checklists: [
-          { title: "Redesign", items: ["Header refine", "Sidebar update"] }
-        ]
-      },
-      { 
-        listId: lists[1].id, title: "Heavy Collaboration Card", pos: 1,
-        dueDate: inTwoDays.toISOString(),
-        labelIndices: [1, 2, 4], memberIndices: [0, 1, 2, 3, 4],
-        checklists: [
-          { title: "Milestones", items: ["Idea", "Draft", "Review", "Release"] }
-        ]
-      },
-      { 
-        listId: lists[1].id, title: "Critical Bug Investigation", pos: 2,
-        dueDate: now.toISOString(), // Due now/soon
-        labelIndices: [0, 5], memberIndices: [1, 2]
-      },
-      { 
-        listId: lists[2].id, title: "Overdue Review Task", pos: 1,
-        dueDate: yesterday.toISOString(), 
-        labelIndices: [2], memberIndices: [0]
-      },
-      { 
-        listId: lists[3].id, title: "Successfully Completed", pos: 1,
-        isCompleted: true,
-        dueDate: yesterday.toISOString(),
-        labelIndices: [3], memberIndices: [4]
-      }
-    ];
+const cardsData = [
+  {
+    listId: lists[0].id, title: "Implement Auth Service", pos: 1,
+    startDate: yesterday.toISOString(), dueDate: tomorrow.toISOString(),
+    labelIndices: [0, 4], memberIndices: [0, 1, 2],
+    checklists: [
+      { title: "Task List", items: ["Setup JWT", "Config Passport", "Database migration"] }
+    ]
+  },
+  {
+    listId: lists[0].id, title: "Refactor UI Components", pos: 2,
+    labelIndices: [1], memberIndices: [3],
+    checklists: [
+      { title: "Redesign", items: ["Header refine", "Sidebar update"] }
+    ]
+  },
+  {
+    listId: lists[1].id, title: "Heavy Collaboration Card", pos: 1,
+    dueDate: inTwoDays.toISOString(),
+    labelIndices: [1, 2, 4], memberIndices: [0, 1, 2, 3, 4],
+    checklists: [
+      { title: "Milestones", items: ["Idea", "Draft", "Review", "Release"] }
+    ]
+  },
+  {
+    listId: lists[1].id, title: "Critical Bug Investigation", pos: 2,
+    dueDate: now.toISOString(),
+    labelIndices: [0, 5], memberIndices: [1, 2]
+  },
+  {
+    listId: lists[2].id, title: "Overdue Review Task", pos: 1,
+    dueDate: yesterday.toISOString(),
+    labelIndices: [2], memberIndices: [0]
+  },
+  {
+    listId: lists[3].id, title: "Successfully Completed", pos: 1,
+    isCompleted: true,
+    dueDate: yesterday.toISOString(),
+    labelIndices: [3], memberIndices: [4]
+  }
+];
+  for (const c of cardsData) {
 
-    for (const c of cardsData) {
-      const cardRes = await client.query(`
-        INSERT INTO cards (title, list_id, position, start_date, due_date, is_completed)
-        VALUES ($1, $2, $3, $4, $5, $6)
-        RETURNING *;
-      `, [c.title, c.listId, c.pos, c.startDate || null, c.dueDate || null, c.isCompleted || false]);
+    const cardRes = await client.query(
+      `INSERT INTO cards (title, list_id, position, start_date, due_date, is_completed)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *`,
+      [
+        c.title,
+        c.listId,
+        c.pos,
+        c.startDate || null,
+        c.dueDate || null,
+        c.isCompleted || false
+      ]
+    );
 
-      const card = cardRes.rows[0];
+    const card = cardRes.rows[0];
 
-      // Insert labels
-      if (c.labelIndices) {
-        for (const idx of c.labelIndices) {
-          await client.query(`INSERT INTO card_labels (card_id, label_id) VALUES ($1, $2)`, [card.id, labels[idx].id]);
-        }
-      }
-
-      // Insert members
-      if (c.memberIndices) {
-        for (const idx of c.memberIndices) {
-          await client.query(`INSERT INTO card_members (card_id, user_id) VALUES ($1, $2)`, [card.id, users[idx].id]);
-        }
-      }
-
-      // Insert checklists
-      if (c.checklists) {
-        for (const cl of c.checklists) {
-          const clRes = await client.query(`INSERT INTO checklists (title, card_id) VALUES ($1, $2) RETURNING id`, [cl.title, card.id]);
-          const clId = clRes.rows[0].id;
-          for (let i = 0; i < cl.items.length; i++) {
-            await client.query(`INSERT INTO checklist_items (title, checklist_id, position) VALUES ($1, $2, $3)`, [cl.items[i], clId, i + 1]);
-          }
-        }
+    // Insert labels
+    if (c.labelIndices) {
+      for (const idx of c.labelIndices) {
+        await client.query(
+          `INSERT INTO card_labels (card_id, label_id) VALUES ($1, $2)`,
+          [card.id, labels[idx].id]
+        );
       }
     }
 
-    await client.query("COMMIT");
+    // Insert members
+    if (c.memberIndices) {
+      for (const idx of c.memberIndices) {
+        await client.query(
+          `INSERT INTO card_members (card_id, user_id) VALUES ($1, $2)`,
+          [card.id, users[idx].id]
+        );
+      }
+    }
 
-    console.log("Database seeded successfully with comprehensive data.");
-    console.log(`Created: 1 board, 4 lists, ${cardsData.length} cards, 5 users, 6 labels`);
+    // Insert checklists
+    if (c.checklists) {
 
-    process.exit(0);
+      let checklistPos = 1;
+
+      for (const cl of c.checklists) {
+
+        const clRes = await client.query(
+          `INSERT INTO checklists (title, card_id, position)
+          VALUES ($1, $2, $3)
+          RETURNING id`,
+          [cl.title, card.id, checklistPos++]
+        );
+
+        const checklistId = clRes.rows[0].id;
+
+        for (let i = 0; i < cl.items.length; i++) {
+          await client.query(
+            `INSERT INTO checklist_items (title, checklist_id, position)
+            VALUES ($1, $2, $3)`,
+            [cl.items[i], checklistId, i + 1]
+          );
+        }
+
+      }
+
+    }
+
+  }
+
+  await client.query("COMMIT");
+
+  console.log("Database seeded successfully with comprehensive data.");
+  console.log(`Created: 1 board, 4 lists, ${cardsData.length} cards, 5 users, 6 labels`);
+
+  process.exit(0);
+
 
   } catch (err) {
 
     await client.query("ROLLBACK");
     console.error("Database setup failed:", err);
-
     process.exit(1);
 
   } finally {
     client.release();
   }
+
 }
 
 setupAndSeed();
