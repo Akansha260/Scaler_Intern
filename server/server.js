@@ -10,15 +10,17 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Basic health check route
-app.get('/api/health', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT NOW()');
-    res.json({ status: 'ok', time: result.rows[0].now });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ status: 'error', message: err.message });
-  }
+
+//Basic health check
+app.get("/", (req, res) => {
+  res.json({
+    service: "TaskWeave API",
+    status: "running"
+  });
+});
+
+app.get("/health", (req, res) => {
+  res.send("OK");
 });
 
 // Import and use routes

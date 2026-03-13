@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { apiUrl } from "@/lib/utils";
 import { Board } from "@/types";
+import AutoRefresh from "@/components/AutoRefresh";
 
 async function getAllBoards(): Promise<Board[]> {
   try {
@@ -22,8 +23,9 @@ export default async function Home() {
 
   return (
     <div className="p-8 text-white flex flex-col gap-4 bg-[#0079bf] min-h-screen">
-      <h2 className="text-xl">No boards found</h2>
-      <p>Please create a board in the backend to get started.</p>
+      <h2 className="text-xl">Loading boards...</h2>
+      <p>If the server is starting, this page will refresh automatically.</p>
+      <AutoRefresh />
     </div>
   );
 }
