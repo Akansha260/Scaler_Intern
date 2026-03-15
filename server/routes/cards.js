@@ -14,6 +14,7 @@ router.patch('/:id/checklists/:checklistId', cardController.updateChecklist);
 router.delete('/:id/checklists/:checklistId', cardController.deleteChecklist);
 router.post('/:id/checklists/:checklistId/items', cardController.addChecklistItem);
 router.patch('/:id/checklist-items/:itemId', cardController.updateChecklistItem);
+router.delete('/checklist-items/:itemId', cardController.deleteChecklistItem);
 router.delete('/:id/checklist-items/:itemId', cardController.deleteChecklistItem);
 
 // Labels & Members

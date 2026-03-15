@@ -229,10 +229,10 @@ const deleteChecklist = async (req, res) => {
 
 const deleteChecklistItem = async (req, res) => {
   try {
-    const { id, itemId } = req.params;
+    const { itemId } = req.params;
     const result = await pool.query(
-      `DELETE FROM checklist_items WHERE id = $1 AND checklist_id IN (SELECT id FROM checklists WHERE card_id = $2) RETURNING *`,
-      [itemId, id]
+      `DELETE FROM checklist_items WHERE id = $1 RETURNING *`,
+      [itemId]
     );
     if (result.rows.length === 0) return res.status(404).json({ message: 'Item not found' });
     res.json({ message: 'Item deleted' });
